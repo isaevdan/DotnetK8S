@@ -1,0 +1,45 @@
+version: "2"
+
+services:
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.7
+    ports:
+      - "2181:2181"
+    volumes:
+      - "zookeeper_data:/bitnami"
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes    
+  kafka:
+    image: docker.io/bitnami/kafka:2.7.0
+    hostname: kafka
+    ports:
+      - "9092:9092"
+    volumes:
+      - "kafka_data:/bitnami"
+    environment:
+      - KAFKA_ADVERTISED_HOST_NAME=kafka
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_PORT=9092
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+  worker:
+    build: 
+        dockerfile: 'Dockerfile'
+        context: ./DotnetK8S.Worker
+    depends_on:
+      - kafka
+  server:
+    build: 
+        dockerfile: 'Dockerfile'
+        context: ./DotnetK8S.Server
+    ports:
+      - "8080:80"
+    depends_on:
+      - kafka
+
+volumes:
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
