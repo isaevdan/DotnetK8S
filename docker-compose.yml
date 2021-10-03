@@ -1,6 +1,19 @@
 version: "2"
 
 services:
+  pgAdmin:
+    image: 'dpage/pgadmin4'
+    environment: 
+        - PGADMIN_DEFAULT_EMAIL=admin@gmail.com
+        - PGADMIN_DEFAULT_PASSWORD=admin_password
+    ports:
+        - 1234:80
+  postgres:
+    image: 'postgres:latest'
+    environment: 
+        - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
   zookeeper:
     image: docker.io/bitnami/zookeeper:3.7
     ports:
@@ -10,6 +23,7 @@ services:
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes    
   kafka:
+    restart: 'unless-stopped'
     image: docker.io/bitnami/kafka:2.7.0
     hostname: kafka
     ports:
@@ -24,19 +38,34 @@ services:
     depends_on:
       - zookeeper
   worker:
+    restart: 'unless-stopped'
     build: 
-        dockerfile: 'Dockerfile'
-        context: ./DotnetK8S.Worker
+        dockerfile: 'DotnetK8S.Worker/Dockerfile'
+        context: .
     depends_on:
       - kafka
-  server:
+  api:
     build: 
-        dockerfile: 'Dockerfile'
-        context: ./DotnetK8S.Server
+        dockerfile: 'DotnetK8S.Server/Dockerfile'
+        context: .
     ports:
       - "8080:80"
     depends_on:
       - kafka
+  client:
+    build: 
+        dockerfile: 'Dockerfile'
+        context: ./client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+  nginx:
+    build: 
+        dockerfile: Dockerfile
+        context: ./nginx
+    ports:
+        - '3050:80'
 
 volumes:
   zookeeper_data:

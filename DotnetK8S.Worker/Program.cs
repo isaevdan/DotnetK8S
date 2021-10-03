@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
+using DotnetK8S.DAL;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,7 +26,7 @@ namespace DotnetK8S.Worker
                 {
                     services.Configure<Config>(config);
                     services.AddHostedService<WorkerService>();
-                    services.AddTransient<IFibResultRepository, FibResultRepository>();
+                    services.AddEfCore(config, "PostgreSql");
                 })
                 .RunConsoleAsync();
         }

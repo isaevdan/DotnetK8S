@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using DotnetK8S.Server.Model;
 using DotnetK8S.Server.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +17,19 @@ namespace DotnetK8S.Server.Controllers
         }
 
         [HttpPost]
-        public async Task Post([FromBody] int no)
+        public async Task Post([FromBody] CalculateFibonacciModel model)
         {
-            await _fibonacciService.Calculate(no);
+            await _fibonacciService.Calculate(model.Index);
+        }
+        
+        [HttpGet("values")]
+        public async Task<FibResultResponse> Values()
+        {
+            var data = await _fibonacciService.GetResults();
+            return new FibResultResponse()
+            {
+                Data = data
+            };
         }
     }
 }

@@ -1,16 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using DotnetK8S.DAL;
 using DotnetK8S.Server.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace DotnetK8S.Server
@@ -33,6 +27,7 @@ namespace DotnetK8S.Server
             services.Configure<KafkaConfig>(Configuration.GetSection("Kafka"));
             services.Configure<FibonacciConfig>(Configuration.GetSection("Fibonacci"));
             services.Configure<Config>(Configuration);
+            services.AddEfCore(Configuration, "PostgreSql");
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "DotnetK8S.Server", Version = "v1"});
